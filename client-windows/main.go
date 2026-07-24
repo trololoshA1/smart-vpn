@@ -14,7 +14,7 @@ func main() {
     err := wails.Run(&options.App{
         Title:  "SmartVPN",
         Width:  600,
-        Height: 400,
+        Height: 500,
         Bind: []interface{}{
             app,
         },
