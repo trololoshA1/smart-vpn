@@ -1,38 +1,32 @@
-package server
+package core
 
 import (
-    "encoding/binary"
     "net"
 )
 
-func HandleUDP(packet []byte) []byte {
-    if len(packet) < 40 {
-        return nil
+func HandleUDPLocal(packet []byte) ([]byte, error) {
+    info := ParseIP(packet)
+    if info == nil {
+        return nil, nil
     }
 
-    dstIP := net.IP(packet[16:20])
-    dstPort := binary.BigEndian.Uint16(packet[22:24])
-
-    conn, err := net.Dial("udp", net.JoinHostPort(dstIP.String(), stringPort(dstPort)))
+    conn, err := net.Dial("udp", net.JoinHostPort(info.DstIP.String(), itoa(info.DstPort)))
     if err != nil {
-        return nil
+        return nil, err
     }
     defer conn.Close()
 
-    _, err = conn.Write(packet)
+    udpPayload := packet[20:]
+    _, err = conn.Write(udpPayload)
     if err != nil {
-        return nil
+        return nil, err
     }
 
     buf := make([]byte, 65535)
     n, err := conn.Read(buf)
     if err != nil {
-        return nil
+        return nil, err
     }
 
-    return buf[:n]
-}
-
-func stringPort(p uint16) string {
-    return net.Itoa(int(p))
+    return buf[:n], nil
 }
