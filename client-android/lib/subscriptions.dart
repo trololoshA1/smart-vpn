@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'add_subscription.dart';
 
 class SubscriptionsScreen extends StatefulWidget {
   static const platform = MethodChannel("smartvpn/tun");
@@ -34,59 +35,48 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
           final s = subs[i];
 
           return Card(
-            child: ListTile(
-              title: Text(s["name"]),
-              subtitle: Column(
+            margin: EdgeInsets.all(10),
+            child: Padding(
+              padding: EdgeInsets.all(15),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Text(
+                    s["name"],
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
                   Text("URL: ${s["url"]}"),
-                  Text("Автообновление: ${s["auto_update"] ? "Вкл" : "Выкл"}"),
+                  Text("Автообновление: ${s["auto_update"] ? "Включено" : "Выключено"}"),
                   Text("Интервал: ${s["update_interval"]} мин"),
-                  Text("Узлов: ${s["nodes"].length}"),
                   Text("Последнее обновление: ${s["last_update"]}"),
+                  Text("Узлов: ${s["nodes"].length}"),
+                  Divider(),
+                  Text("Узлы:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 5),
+                  ...List.generate(s["nodes"].length, (j) {
+                    final n = s["nodes"][j];
+                    return Padding(
+                      padding: EdgeInsets.only(left: 10, bottom: 5),
+                      child: Text("${n["name"]} — ${n["region"]} — ${n["last_ping"]} ms"),
+                    );
+                  }),
                 ],
               ),
-              trailing: Icon(Icons.arrow_forward),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => SubscriptionDetailsScreen(sub: s),
-                  ),
-                );
-              },
             ),
           );
         },
       ),
-    );
-  }
-}
 
-class SubscriptionDetailsScreen extends StatelessWidget {
-  final Map sub;
-
-  SubscriptionDetailsScreen({required this.sub});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(sub["name"])),
-      body: ListView(
-        children: [
-          ListTile(title: Text("URL: ${sub["url"]}")),
-          ListTile(title: Text("Автообновление: ${sub["auto_update"]}")),
-          ListTile(title: Text("Интервал: ${sub["update_interval"]} мин")),
-          ListTile(title: Text("Узлов: ${sub["nodes"].length}")),
-          Divider(),
-          ...List.generate(sub["nodes"].length, (i) {
-            final n = sub["nodes"][i];
-            return ListTile(
-              title: Text(n["name"]),
-              subtitle: Text("${n["region"]} — ${n["last_ping"]} ms"),
-            );
-          })
-        ],
+      // ⭐ КНОПКА ДОБАВИТЬ ПОДПИСКУ
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => AddSubscriptionScreen()),
+          ).then((_) => loadSubs());
+        },
       ),
     );
   }
