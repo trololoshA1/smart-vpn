@@ -1,55 +1,31 @@
 package com.smartvpn
 
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.engine.FlutterEngine
-import io.flutter.plugin.common.MethodChannel
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import java.util.concurrent.TimeUnit
 
-class MainActivity : FlutterActivity() {
+class TunService : Service() {
 
-    private val CHANNEL = "smartvpn/tun"
-    private var tunService: TunService? = null
+    override fun onCreate() {
+        super.onCreate()
 
-    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-        super.configureFlutterEngine(flutterEngine)
+        // Запускаем автообновление каждые 15 минут
+        val workRequest =
+            PeriodicWorkRequestBuilder<AutoUpdateWorker>(15, TimeUnit.MINUTES)
+                .build()
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "auto_update_subs",
+            ExistingPeriodicWorkPolicy.UPDATE,
+            workRequest
+        )
+    }
 
-                    "startTun" -> {
-                        tunService = TunService()
-                        val fd = tunService!!.startTun()
-                        result.success(fd)
-                    }
-
-                    "startCore" -> {
-                        val fd = call.argument<Int>("fd")!!
-                        mobile.NewAndroidTun(fd)
-                        result.success(true)
-                    }
-
-                    "getSubs" -> {
-                        val subs = mobile.GetSubscriptions()
-                        result.success(subs)
-                    }
-
-                    "checkNodes" -> {
-                        val subs = mobile.CheckNodes()
-                        result.success(subs)
-                    }
-
-                    "bestNode" -> {
-                        val node = mobile.GetBestNode()
-                        result.success(node)
-                    }
-
-                    "status" -> {
-                        val st = mobile.Status()
-                        result.success(st)
-                    }
-
-                    else -> result.notImplemented()
-                }
-            }
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
     }
 }
