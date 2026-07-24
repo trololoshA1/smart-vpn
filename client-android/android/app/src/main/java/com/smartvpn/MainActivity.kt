@@ -29,6 +29,23 @@ class MainActivity: FlutterActivity() {
                     result.success(true)
                 }
 
+                "removeSubscription" -> {
+                    val index = call.argument<Int>("index")!!
+                    Mobile.removeSubscription(index)
+                    result.success(true)
+                }
+
+                "editSubscription" -> {
+                    val index = call.argument<Int>("index")!!
+                    val name = call.argument<String>("name")!!
+                    val url = call.argument<String>("url")!!
+                    val auto = call.argument<Boolean>("auto")!!
+                    val interval = call.argument<Int>("interval")!!
+
+                    Mobile.editSubscription(index, name, url, auto, interval)
+                    result.success(true)
+                }
+
                 else -> result.notImplemented()
             }
         }
