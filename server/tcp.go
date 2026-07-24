@@ -1,23 +1,31 @@
-package server
+package core
 
 import (
     "net"
 )
 
-func HandleTCP(packet []byte) []byte {
-    dstIP := net.IP(packet[16:20])
-    dstPort := int(packet[22])<<8 | int(packet[23])
+func HandleTCPLocal(packet []byte) ([]byte, error) {
+    dstIP, dstPort, _ := ProcessIPPacket(packet)
+    if dstIP == nil {
+        return nil, nil
+    }
 
     conn, err := net.Dial("tcp", net.JoinHostPort(dstIP.String(), string(dstPort)))
     if err != nil {
-        return nil
+        return nil, err
     }
     defer conn.Close()
 
-    conn.Write(packet)
+    _, err = conn.Write(packet)
+    if err != nil {
+        return nil, err
+    }
 
     buf := make([]byte, 65535)
-    n, _ := conn.Read(buf)
+    n, err := conn.Read(buf)
+    if err != nil {
+        return nil, err
+    }
 
-    return buf[:n]
+    return buf[:n], nil
 }
