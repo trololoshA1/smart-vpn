@@ -1,7 +1,6 @@
 package main
 
 import (
-    "encoding/binary"
     "log"
     "net"
 
@@ -20,31 +19,20 @@ func main() {
             continue
         }
 
-        go handle(conn)
+        go func(c net.Conn) {
+            hs, _ := server.NewServerHandshake()
+
+            var clientPub [32]byte
+            c.Read(clientPub[:])
+
+            hs.SetClientPub(clientPub)
+            hs.ComputeSharedKey()
+
+            c.Write(hs.ServerPub[:])
+
+            protocol := server.NewProtocol(hs.SharedKey)
+
+            server.HandleEncrypted(c, protocol)
+        }(conn)
     }
-}
-
-func handle(conn net.Conn) {
-    defer conn.Close()
-
-    hs, err := server.NewServerHandshake()
-    if err != nil {
-        return
-    }
-
-    // Получаем публичный ключ клиента
-    var clientPub [32]byte
-    _, err = conn.Read(clientPub[:])
-    if err != nil {
-        return
-    }
-
-    hs.SetClientPub(clientPub)
-    hs.ComputeSharedKey()
-
-    // Отправляем публичный ключ сервера
-    conn.Write(hs.ServerPub[:])
-
-    // Теперь соединение готово к шифрованному обмену
-    // SharedKey — общий ключ для ChaCha20-Poly1305
 }
