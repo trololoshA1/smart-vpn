@@ -1,6 +1,7 @@
 package com.smartvpn
 
 import android.content.Intent
+import android.net.VpnService
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -12,24 +13,32 @@ class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        startService(Intent(this, TunService::class.java))
-
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
 
-                "connect" -> {
-                    try {
-                        Mobile.connect()
-                        result.success(true)
-                    } catch (e: Exception) {
-                        result.error("ERR", e.message, null)
+                "startVpn" -> {
+                    val intent = VpnService.prepare(this)
+                    if (intent != null) {
+                        startActivity(intent)
+                    } else {
+                        startService(Intent(this, TunService::class.java))
                     }
+                    result.success(true)
                 }
 
                 "bestNode" -> {
                     try {
                         val node = Mobile.bestNode()
                         result.success(node)
+                    } catch (e: Exception) {
+                        result.error("ERR", e.message, null)
+                    }
+                }
+
+                "connect" -> {
+                    try {
+                        Mobile.connect()
+                        result.success(true)
                     } catch (e: Exception) {
                         result.error("ERR", e.message, null)
                     }
