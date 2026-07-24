@@ -68,7 +68,6 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
         },
       ),
 
-      // ⭐ КНОПКА ДОБАВИТЬ ПОДПИСКУ
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
