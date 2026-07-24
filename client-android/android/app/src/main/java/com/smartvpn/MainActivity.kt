@@ -12,11 +12,28 @@ class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        // Запуск фонового сервиса
         startService(Intent(this, TunService::class.java))
 
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             when (call.method) {
+
+                "connect" -> {
+                    try {
+                        Mobile.connect()
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("ERR", e.message, null)
+                    }
+                }
+
+                "bestNode" -> {
+                    try {
+                        val node = Mobile.bestNode()
+                        result.success(node)
+                    } catch (e: Exception) {
+                        result.error("ERR", e.message, null)
+                    }
+                }
 
                 "getSubs" -> {
                     val subs = Mobile.getSubscriptions()
