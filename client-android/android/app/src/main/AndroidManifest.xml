@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.smartvpn">
 
-    <!-- Разрешения для VPN -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
@@ -13,7 +12,6 @@
         android:label="SmartVPN"
         android:icon="@mipmap/ic_launcher">
 
-        <!-- Главная активность -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -30,12 +28,11 @@
 
         </activity>
 
-        <!-- Сервис автообновления подписок -->
         <service
             android:name=".TunService"
+            android:permission="android.permission.BIND_VPN_SERVICE"
             android:exported="false" />
 
-        <!-- WorkManager (фоновые задачи) -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
