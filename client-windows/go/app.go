@@ -16,6 +16,7 @@ func NewApp() *App {
     return &App{}
 }
 
+// Инициализация VPN ядра
 func (a *App) Init(geoPath, adPath, subsPath string) error {
     geo, err := geoip.NewGeoIP(geoPath)
     if err != nil {
@@ -34,30 +35,45 @@ func (a *App) Init(geoPath, adPath, subsPath string) error {
     return nil
 }
 
+// Подключение VPN
 func (a *App) Connect() error {
-    // Connect VPN core
     err := a.vpn.Connect()
     if err != nil {
         return err
     }
 
-    // Create Windows TUN
     tun, err := NewWindowsTun()
     if err != nil {
         return err
     }
     a.tun = tun
 
-    // Start TUN handler
     handler := core.NewTunHandler(tun, a.vpn)
     go handler.Start()
 
     return nil
 }
 
+// Получить список подписок
+func (a *App) GetSubs() []subscriptions.Subscription {
+    return a.vpn.SubsManager.Subs
+}
+
+// Проверить узлы (ping)
+func (a *App) CheckNodes() []subscriptions.Subscription {
+    a.vpn.SubsManager.CheckAll()
+    return a.vpn.SubsManager.Subs
+}
+
+// Лучший узел
+func (a *App) BestNode() *subscriptions.Subscription {
+    return a.vpn.SubsManager.Best()
+}
+
+// Статус VPN
 func (a *App) Status() string {
     if a.vpn == nil {
-        return "Not initialized"
+        return "Не инициализировано"
     }
-    return "Connected"
+    return "Работает"
 }
