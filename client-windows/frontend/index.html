@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SmartVPN</title>
+</head>
+<body>
+    <h1>SmartVPN</h1>
+    <button onclick="connect()">Подключить</button>
+
+    <script>
+        async function connect() {
+            await window.go.go.App.Connect();
+            alert("VPN подключен");
+        }
+    </script>
+</body>
+</html>
