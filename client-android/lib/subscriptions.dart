@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'add_subscription.dart';
+import 'edit_subscription.dart';
 
 class SubscriptionsScreen extends StatefulWidget {
   static const platform = MethodChannel("smartvpn/tun");
@@ -36,32 +37,32 @@ class _SubscriptionsScreenState extends State<SubscriptionsScreen> {
 
           return Card(
             margin: EdgeInsets.all(10),
-            child: Padding(
-              padding: EdgeInsets.all(15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    s["name"],
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => EditSubscriptionScreen(index: i, sub: s),
                   ),
-                  SizedBox(height: 8),
-                  Text("URL: ${s["url"]}"),
-                  Text("Автообновление: ${s["auto_update"] ? "Включено" : "Выключено"}"),
-                  Text("Интервал: ${s["update_interval"]} мин"),
-                  Text("Последнее обновление: ${s["last_update"]}"),
-                  Text("Узлов: ${s["nodes"].length}"),
-                  Divider(),
-                  Text("Узлы:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 5),
-                  ...List.generate(s["nodes"].length, (j) {
-                    final n = s["nodes"][j];
-                    return Padding(
-                      padding: EdgeInsets.only(left: 10, bottom: 5),
-                      child: Text("${n["name"]} — ${n["region"]} — ${n["last_ping"]} ms"),
-                    );
-                  }),
-                ],
+                ).then((_) => loadSubs());
+              },
+              child: Padding(
+                padding: EdgeInsets.all(15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      s["name"],
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 8),
+                    Text("URL: ${s["url"]}"),
+                    Text("Автообновление: ${s["auto_update"] ? "Включено" : "Выключено"}"),
+                    Text("Интервал: ${s["update_interval"]} мин"),
+                    Text("Последнее обновление: ${s["last_update"]}"),
+                    Text("Узлов: ${s["nodes"].length}"),
+                  ],
+                ),
               ),
             ),
           );
