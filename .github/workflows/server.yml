@@ -1,1 +1,45 @@
-. 
+name: Build Server
+
+on:
+  push:
+    paths:
+      - "server/**"
+      - ".github/workflows/server.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Build Linux binary
+        run: |
+          cd server
+          GOOS=linux GOARCH=amd64 go build -o server-linux
+
+      - name: Build Windows binary
+        run: |
+          cd server
+          GOOS=windows GOARCH=amd64 go build -o server-windows.exe
+
+      - name: Build macOS binary
+        run: |
+          cd server
+          GOOS=darwin GOARCH=amd64 go build -o server-macos
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: server-binaries
+          path: |
+            server/server-linux
+            server/server-windows.exe
+            server/server-macos
