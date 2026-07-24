@@ -2,16 +2,69 @@
 <html>
 <head>
     <title>SmartVPN</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        #subs {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>SmartVPN</h1>
-    <button onclick="connect()">Подключить</button>
 
-    <script>
-        async function connect() {
-            await window.go.go.App.Connect();
-            alert("VPN подключен");
-        }
-    </script>
+<h1>SmartVPN</h1>
+
+<button onclick="connect()">Подключить VPN</button>
+<button onclick="showSubs()">Подписки</button>
+<button onclick="checkNodes()">Обновить Ping</button>
+<button onclick="bestNode()">Лучший узел</button>
+<button onclick="status()">Статус</button>
+
+<div id="output"></div>
+<div id="subs"></div>
+
+<script>
+async function connect() {
+    await window.go.go.App.Connect();
+    document.getElementById("output").innerHTML = "<p>VPN подключен</p>";
+}
+
+async function showSubs() {
+    const subs = await window.go.go.App.GetSubs();
+    let html = "<h3>Подписки:</h3>";
+    subs.forEach(s => {
+        html += `<p>${s.name} — ${s.region} — ${s.last_ping} ms</p>`;
+    });
+    document.getElementById("subs").innerHTML = html;
+}
+
+async function checkNodes() {
+    const subs = await window.go.go.App.CheckNodes();
+    let html = "<h3>Ping обновлён:</h3>";
+    subs.forEach(s => {
+        html += `<p>${s.name} — ${s.region} — ${s.last_ping} ms</p>`;
+    });
+    document.getElementById("subs").innerHTML = html;
+}
+
+async function bestNode() {
+    const node = await window.go.go.App.BestNode();
+    document.getElementById("output").innerHTML =
+        `<p>Лучший узел: ${node.name} (${node.region}) — ${node.last_ping} ms</p>`;
+}
+
+async function status() {
+    const st = await window.go.go.App.Status();
+    document.getElementById("output").innerHTML = `<p>Статус: ${st}</p>`;
+}
+</script>
+
 </body>
 </html>
