@@ -2,7 +2,6 @@ package core
 
 import (
     "errors"
-    "net"
 )
 
 func (v *VPN) HandlePacket(packet []byte) ([]byte, error) {
@@ -10,8 +9,8 @@ func (v *VPN) HandlePacket(packet []byte) ([]byte, error) {
         return nil, errors.New("нет протокола")
     }
 
-    dstIP, dstPort, proto := ProcessIPPacket(packet)
-    if dstIP == nil {
+    info := ParseIP(packet)
+    if info == nil {
         return nil, nil
     }
 
