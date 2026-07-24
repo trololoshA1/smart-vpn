@@ -25,8 +25,22 @@ func HandleEncrypted(conn net.Conn, protocol *Protocol) {
             continue
         }
 
-        // Здесь обработка IP-пакета
-        response := ProcessIPPacket(plaintext)
+        proto := ProcessIPPacket(plaintext)
+
+        var response []byte
+
+        switch proto {
+        case 6:
+            response = HandleTCP(plaintext)
+        case 17:
+            response = HandleUDP(plaintext)
+        default:
+            response = nil
+        }
+
+        if response == nil {
+            continue
+        }
 
         nonce := protocol.NewNonce()
         encrypted, _ := protocol.Encrypt(nonce, response)
