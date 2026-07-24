@@ -1,39 +1,37 @@
-package server
+package core
 
 import (
-    "encoding/binary"
     "net"
 )
 
-func HandleTCP(packet []byte) []byte {
-    if len(packet) < 40 {
-        return nil
+func HandleTCPLocal(packet []byte) ([]byte, error) {
+    info := ParseIP(packet)
+    if info == nil {
+        return nil, nil
     }
 
-    dstIP := net.IP(packet[16:20])
-    dstPort := binary.BigEndian.Uint16(packet[22:24])
-
-    conn, err := net.Dial("tcp", net.JoinHostPort(dstIP.String(), stringPort(dstPort)))
+    conn, err := net.Dial("tcp", net.JoinHostPort(info.DstIP.String(), itoa(info.DstPort)))
     if err != nil {
-        return nil
+        return nil, err
     }
     defer conn.Close()
 
-    // Отправляем TCP payload (весь IP-пакет)
-    _, err = conn.Write(packet)
+    // Отправляем только TCP payload, не весь IP пакет
+    tcpPayload := packet[20:]
+    _, err = conn.Write(tcpPayload)
     if err != nil {
-        return nil
+        return nil, err
     }
 
     buf := make([]byte, 65535)
     n, err := conn.Read(buf)
     if err != nil {
-        return nil
+        return nil, err
     }
 
-    return buf[:n]
+    return buf[:n], nil
 }
 
-func stringPort(p uint16) string {
+func itoa(p uint16) string {
     return net.Itoa(int(p))
 }
