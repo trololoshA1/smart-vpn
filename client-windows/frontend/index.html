@@ -3,17 +3,26 @@
 <head>
     <title>SmartVPN</title>
     <style>
-        body {
-            font-family: Arial;
-            padding: 20px;
-        }
+        body { font-family: Arial; padding: 20px; }
         button {
             padding: 10px 20px;
             margin: 10px;
             font-size: 16px;
         }
-        #subs {
-            margin-top: 20px;
+        .card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .node {
+            margin-left: 15px;
+            color: #444;
         }
     </style>
 </head>
@@ -22,10 +31,10 @@
 <h1>SmartVPN</h1>
 
 <button onclick="connect()">Подключить VPN</button>
-<button onclick="showSubs()">Подписки</button>
+<button onclick="loadSubs()">Показать подписки</button>
 <button onclick="checkNodes()">Обновить Ping</button>
 <button onclick="bestNode()">Лучший узел</button>
-<button onclick="status()">Статус</button>
+<button onclick="status()">Статус VPN</button>
 
 <div id="output"></div>
 <div id="subs"></div>
@@ -36,33 +45,77 @@ async function connect() {
     document.getElementById("output").innerHTML = "<p>VPN подключен</p>";
 }
 
-async function showSubs() {
+async function status() {
+    const st = await window.go.go.App.Status();
+    document.getElementById("output").innerHTML = `<p>Статус: ${st}</p>`;
+}
+
+async function bestNode() {
+    const node = await window.go.go.App.BestNode();
+    if (!node) {
+        document.getElementById("output").innerHTML = "<p>Нет узлов</p>";
+        return;
+    }
+    document.getElementById("output").innerHTML =
+        `<p>Лучший узел: ${node.name} (${node.region}) — ${node.last_ping} ms</p>`;
+}
+
+async function loadSubs() {
     const subs = await window.go.go.App.GetSubs();
-    let html = "<h3>Подписки:</h3>";
+    let html = "<h2>Подписки</h2>";
+
     subs.forEach(s => {
-        html += `<p>${s.name} — ${s.region} — ${s.last_ping} ms</p>`;
+        html += `
+        <div class="card">
+            <div class="title">${s.name}</div>
+            <p><b>URL:</b> ${s.url}</p>
+            <p><b>Автообновление:</b> ${s.auto_update ? "Включено" : "Выключено"}</p>
+            <p><b>Интервал:</b> ${s.update_interval} мин</p>
+            <p><b>Последнее обновление:</b> ${s.last_update}</p>
+            <p><b>Количество узлов:</b> ${s.nodes.length}</p>
+            <hr>
+            <h3>Узлы:</h3>
+        `;
+
+        s.nodes.forEach(n => {
+            html += `
+                <div class="node">
+                    ${n.name} — ${n.region} — ${n.last_ping} ms
+                </div>
+            `;
+        });
+
+        html += `</div>`;
     });
+
     document.getElementById("subs").innerHTML = html;
 }
 
 async function checkNodes() {
     const subs = await window.go.go.App.CheckNodes();
-    let html = "<h3>Ping обновлён:</h3>";
+    let html = "<h2>Ping обновлён</h2>";
+
     subs.forEach(s => {
-        html += `<p>${s.name} — ${s.region} — ${s.last_ping} ms</p>`;
+        html += `
+        <div class="card">
+            <div class="title">${s.name}</div>
+            <p><b>Узлов:</b> ${s.nodes.length}</p>
+            <hr>
+            <h3>Узлы:</h3>
+        `;
+
+        s.nodes.forEach(n => {
+            html += `
+                <div class="node">
+                    ${n.name} — ${n.region} — ${n.last_ping} ms
+                </div>
+            `;
+        });
+
+        html += `</div>`;
     });
+
     document.getElementById("subs").innerHTML = html;
-}
-
-async function bestNode() {
-    const node = await window.go.go.App.BestNode();
-    document.getElementById("output").innerHTML =
-        `<p>Лучший узел: ${node.name} (${node.region}) — ${node.last_ping} ms</p>`;
-}
-
-async function status() {
-    const st = await window.go.go.App.Status();
-    document.getElementById("output").innerHTML = `<p>Статус: ${st}</p>`;
 }
 </script>
 
