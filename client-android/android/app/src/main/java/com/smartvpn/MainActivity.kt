@@ -3,53 +3,34 @@ package com.smartvpn
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import mobile.Mobile
 
-class MainActivity : FlutterActivity() {
-
+class MainActivity: FlutterActivity() {
     private val CHANNEL = "smartvpn/tun"
-    private var tunService: TunService? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+            when (call.method) {
 
-                    "startTun" -> {
-                        tunService = TunService()
-                        val fd = tunService!!.startTun()
-                        result.success(fd)
-                    }
-
-                    "startCore" -> {
-                        val fd = call.argument<Int>("fd")!!
-                        mobile.NewAndroidTun(fd)
-                        result.success(true)
-                    }
-
-                    "getSubs" -> {
-                        val subs = mobile.GetSubscriptions()
-                        result.success(subs)
-                    }
-
-                    "checkNodes" -> {
-                        val subs = mobile.CheckNodes()
-                        result.success(subs)
-                    }
-
-                    "bestNode" -> {
-                        val node = mobile.GetBestNode()
-                        result.success(node)
-                    }
-
-                    "status" -> {
-                        val st = mobile.Status()
-                        result.success(st)
-                    }
-
-                    else -> result.notImplemented()
+                "getSubs" -> {
+                    val subs = Mobile.getSubscriptions()
+                    result.success(subs)
                 }
+
+                "addSubscription" -> {
+                    val name = call.argument<String>("name")!!
+                    val url = call.argument<String>("url")!!
+                    val auto = call.argument<Boolean>("auto")!!
+                    val interval = call.argument<Int>("interval")!!
+
+                    Mobile.addSubscription(name, url, auto, interval)
+                    result.success(true)
+                }
+
+                else -> result.notImplemented()
             }
+        }
     }
 }
