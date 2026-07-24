@@ -34,6 +34,10 @@ func EditSubscription(index int, name, url string, auto bool, interval int) {
     vpnCore.SubsManager.UpdateLocalSubscription(index, name, url, auto, interval)
 }
 
+func UpdateSubscription(index int) error {
+    return vpnCore.SubsManager.UpdateSubscription(index)
+}
+
 func GetSubscriptions() []subscriptions.Subscription {
     return vpnCore.SubsManager.Subs
 }
