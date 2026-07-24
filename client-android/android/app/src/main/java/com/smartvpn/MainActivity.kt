@@ -15,16 +15,40 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
+
                     "startTun" -> {
                         tunService = TunService()
                         val fd = tunService!!.startTun()
                         result.success(fd)
                     }
+
                     "startCore" -> {
                         val fd = call.argument<Int>("fd")!!
                         mobile.NewAndroidTun(fd)
                         result.success(true)
                     }
+
+                    "getSubs" -> {
+                        val subs = mobile.GetSubscriptions()
+                        result.success(subs)
+                    }
+
+                    "checkNodes" -> {
+                        val subs = mobile.CheckNodes()
+                        result.success(subs)
+                    }
+
+                    "bestNode" -> {
+                        val node = mobile.GetBestNode()
+                        result.success(node)
+                    }
+
+                    "status" -> {
+                        val st = mobile.Status()
+                        result.success(st)
+                    }
+
+                    else -> result.notImplemented()
                 }
             }
     }
