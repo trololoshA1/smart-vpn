@@ -1,8 +1,8 @@
 package mobile
 
 import (
-    "smart-vpn/subscriptions"
     "smart-vpn/core"
+    "smart-vpn/subscriptions"
     "smart-vpn/geoip"
     "smart-vpn/adblock"
 )
@@ -17,8 +17,6 @@ func Init(geoPath string, adPath string, subsPath string, updateURL string) erro
     subs.Load(subsPath)
 
     vpnCore = core.NewVPN(geo, ad, subs)
-    vpnCore.SetUpdateURL(updateURL)
-
     return nil
 }
 
@@ -26,8 +24,16 @@ func Connect() error {
     return vpnCore.Connect()
 }
 
+func HandlePacket(packet []byte) ([]byte, error) {
+    return vpnCore.HandlePacket(packet)
+}
+
 func BestNode() (*subscriptions.Node, error) {
-    return vpnCore.BestNode()
+    node := vpnCore.SubsManager.BestNode()
+    if node == nil {
+        return nil, errors.New("нет узлов")
+    }
+    return node, nil
 }
 
 func GetSubscriptions() []subscriptions.Subscription {
