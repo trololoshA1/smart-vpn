@@ -16,12 +16,12 @@ type Node struct {
 }
 
 type Subscription struct {
-    Name          string `json:"name"`
-    Url           string `json:"url"`
-    AutoUpdate    bool   `json:"auto_update"`
-    UpdateInterval int   `json:"update_interval"` // minutes
-    LastUpdate    int64  `json:"last_update"`
-    Nodes         []Node `json:"nodes"`
+    Name           string `json:"name"`
+    Url            string `json:"url"`
+    AutoUpdate     bool   `json:"auto_update"`
+    UpdateInterval int    `json:"update_interval"`
+    LastUpdate     int64  `json:"last_update"`
+    Nodes          []Node `json:"nodes"`
 }
 
 type Manager struct {
@@ -32,32 +32,15 @@ func NewManager() *Manager {
     return &Manager{}
 }
 
-func (m *Manager) Load(path string) error {
-    data, err := io.ReadAll(mustOpen(path))
-    if err != nil {
-        return err
-    }
-    return json.Unmarshal(data, &m.Subs)
-}
-
-func mustOpen(path string) io.Reader {
-    f, err := http.Get(path)
-    if err != nil {
-        panic(err)
-    }
-    return f.Body
-}
-
-func (m *Manager) Save(path string) error {
-    data, err := json.MarshalIndent(m.Subs, "", "  ")
-    if err != nil {
-        return err
-    }
-    return writeFile(path, data)
-}
-
-func writeFile(path string, data []byte) error {
-    return errors.New("saving not implemented for mobile")
+func (m *Manager) AddSubscription(name, url string, auto bool, interval int) {
+    m.Subs = append(m.Subs, Subscription{
+        Name:           name,
+        Url:            url,
+        AutoUpdate:     auto,
+        UpdateInterval: interval,
+        LastUpdate:     0,
+        Nodes:          []Node{},
+    })
 }
 
 func (m *Manager) UpdateSubscription(i int) error {
