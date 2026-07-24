@@ -26,19 +26,19 @@ class MainActivity: FlutterActivity() {
                     result.success(true)
                 }
 
-                "bestNode" -> {
+                "connect" -> {
                     try {
-                        val node = Mobile.bestNode()
-                        result.success(node)
+                        Mobile.connect()
+                        result.success(true)
                     } catch (e: Exception) {
                         result.error("ERR", e.message, null)
                     }
                 }
 
-                "connect" -> {
+                "bestNode" -> {
                     try {
-                        Mobile.connect()
-                        result.success(true)
+                        val node = Mobile.bestNode()
+                        result.success(node)
                     } catch (e: Exception) {
                         result.error("ERR", e.message, null)
                     }
