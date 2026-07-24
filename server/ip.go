@@ -1,17 +1,8 @@
-package core
+package server
 
-import (
-    "net"
-)
-
-func ProcessIPPacket(packet []byte) (dstIP net.IP, dstPort int, proto int) {
+func ProcessIPPacket(packet []byte) int {
     if len(packet) < 20 {
-        return nil, 0, 0
+        return 0
     }
-
-    proto = int(packet[9])
-    dstIP = net.IP(packet[16:20])
-    dstPort = int(packet[22])<<8 | int(packet[23])
-
-    return
+    return int(packet[9]) // 6 = TCP, 17 = UDP
 }
