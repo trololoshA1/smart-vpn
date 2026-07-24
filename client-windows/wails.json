@@ -1,0 +1,9 @@
+{
+  "name": "SmartVPN",
+  "frontend": {
+    "dir": "frontend"
+  },
+  "build": {
+    "platform": "windows"
+  }
+}
