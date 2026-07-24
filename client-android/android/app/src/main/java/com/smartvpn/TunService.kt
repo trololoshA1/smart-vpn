@@ -1,19 +1,55 @@
 package com.smartvpn
 
-import android.net.VpnService
-import android.os.ParcelFileDescriptor
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.MethodChannel
 
-class TunService : VpnService() {
+class MainActivity : FlutterActivity() {
 
-    var tunFd: ParcelFileDescriptor? = null
+    private val CHANNEL = "smartvpn/tun"
+    private var tunService: TunService? = null
 
-    fun startTun(): Int {
-        val builder = Builder()
-        builder.addAddress("10.0.0.2", 32)
-        builder.addRoute("0.0.0.0", 0)
-        builder.setSession("SmartVPN")
+    override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
+        super.configureFlutterEngine(flutterEngine)
 
-        tunFd = builder.establish()
-        return tunFd!!.fd
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+
+                    "startTun" -> {
+                        tunService = TunService()
+                        val fd = tunService!!.startTun()
+                        result.success(fd)
+                    }
+
+                    "startCore" -> {
+                        val fd = call.argument<Int>("fd")!!
+                        mobile.NewAndroidTun(fd)
+                        result.success(true)
+                    }
+
+                    "getSubs" -> {
+                        val subs = mobile.GetSubscriptions()
+                        result.success(subs)
+                    }
+
+                    "checkNodes" -> {
+                        val subs = mobile.CheckNodes()
+                        result.success(subs)
+                    }
+
+                    "bestNode" -> {
+                        val node = mobile.GetBestNode()
+                        result.success(node)
+                    }
+
+                    "status" -> {
+                        val st = mobile.Status()
+                        result.success(st)
+                    }
+
+                    else -> result.notImplemented()
+                }
+            }
     }
 }
