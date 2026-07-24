@@ -43,6 +43,23 @@ func (m *Manager) AddSubscription(name, url string, auto bool, interval int) {
     })
 }
 
+func (m *Manager) RemoveSubscription(index int) {
+    if index < 0 || index >= len(m.Subs) {
+        return
+    }
+    m.Subs = append(m.Subs[:index], m.Subs[index+1:]...)
+}
+
+func (m *Manager) UpdateLocalSubscription(index int, name, url string, auto bool, interval int) {
+    if index < 0 || index >= len(m.Subs) {
+        return
+    }
+    m.Subs[index].Name = name
+    m.Subs[index].Url = url
+    m.Subs[index].AutoUpdate = auto
+    m.Subs[index].UpdateInterval = interval
+}
+
 func (m *Manager) UpdateSubscription(i int) error {
     sub := &m.Subs[i]
 
