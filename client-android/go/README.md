@@ -1,0 +1,1 @@
+GoMobile bindings will be placed here.
