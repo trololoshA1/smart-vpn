@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(SmartVPNApp());
@@ -20,7 +21,18 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  static const platform = MethodChannel("smartvpn/tun");
+
   bool connected = false;
+
+  Future<void> connectVPN() async {
+    final fd = await platform.invokeMethod("startTun");
+    await platform.invokeMethod("startCore", {"fd": fd});
+
+    setState(() {
+      connected = true;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +49,9 @@ class _MainScreenState extends State<MainScreen> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                setState(() {
-                  connected = !connected;
-                });
+                if (!connected) connectVPN();
               },
-              child: Text(connected ? "Отключить" : "Подключить"),
+              child: Text("Подключить"),
             ),
           ],
         ),
