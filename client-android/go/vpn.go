@@ -26,6 +26,14 @@ func AddSubscription(name, url string, auto bool, interval int) {
     vpnCore.SubsManager.AddSubscription(name, url, auto, interval)
 }
 
+func RemoveSubscription(index int) {
+    vpnCore.SubsManager.RemoveSubscription(index)
+}
+
+func EditSubscription(index int, name, url string, auto bool, interval int) {
+    vpnCore.SubsManager.UpdateLocalSubscription(index, name, url, auto, interval)
+}
+
 func GetSubscriptions() []subscriptions.Subscription {
     return vpnCore.SubsManager.Subs
 }
