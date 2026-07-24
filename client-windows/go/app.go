@@ -9,6 +9,7 @@ import (
 
 type App struct {
     vpn *core.VPN
+    tun *WindowsTun
 }
 
 func NewApp() *App {
@@ -34,7 +35,24 @@ func (a *App) Init(geoPath, adPath, subsPath string) error {
 }
 
 func (a *App) Connect() error {
-    return a.vpn.Connect()
+    // Connect VPN core
+    err := a.vpn.Connect()
+    if err != nil {
+        return err
+    }
+
+    // Create Windows TUN
+    tun, err := NewWindowsTun()
+    if err != nil {
+        return err
+    }
+    a.tun = tun
+
+    // Start TUN handler
+    handler := core.NewTunHandler(tun, a.vpn)
+    go handler.Start()
+
+    return nil
 }
 
 func (a *App) Status() string {
