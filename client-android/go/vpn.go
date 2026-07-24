@@ -9,7 +9,7 @@ import (
 
 var vpnCore *core.VPN
 
-// Initialize VPN core
+// Инициализация VPN ядра
 func Init(geoPath string, adPath string, subsPath string) error {
     geo, err := geoip.NewGeoIP(geoPath)
     if err != nil {
@@ -28,12 +28,36 @@ func Init(geoPath string, adPath string, subsPath string) error {
     return nil
 }
 
-// Connect to best node
+// Подключение к лучшему узлу
 func Connect() error {
     return vpnCore.Connect()
 }
 
-// Handle packet from TUN
+// Обработка пакета из TUN
 func HandlePacket(packet []byte) ([]byte, error) {
     return vpnCore.HandlePacket(packet)
+}
+
+// Получить список подписок
+func GetSubscriptions() []subscriptions.Subscription {
+    return vpnCore.SubsManager.Subs
+}
+
+// Проверить все узлы (ping)
+func CheckNodes() []subscriptions.Subscription {
+    vpnCore.SubsManager.CheckAll()
+    return vpnCore.SubsManager.Subs
+}
+
+// Получить лучший узел
+func GetBestNode() *subscriptions.Subscription {
+    return vpnCore.SubsManager.Best()
+}
+
+// Получить статус VPN
+func Status() string {
+    if vpnCore == nil {
+        return "Не инициализировано"
+    }
+    return "Работает"
 }
