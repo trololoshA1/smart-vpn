@@ -22,20 +22,12 @@ func Init(geoPath string, adPath string, subsPath string, updateURL string) erro
     return nil
 }
 
-func AddSubscription(name, url string, auto bool, interval int) {
-    vpnCore.SubsManager.AddSubscription(name, url, auto, interval)
+func Connect() error {
+    return vpnCore.Connect()
 }
 
-func RemoveSubscription(index int) {
-    vpnCore.SubsManager.RemoveSubscription(index)
-}
-
-func EditSubscription(index int, name, url string, auto bool, interval int) {
-    vpnCore.SubsManager.UpdateLocalSubscription(index, name, url, auto, interval)
-}
-
-func UpdateSubscription(index int) error {
-    return vpnCore.SubsManager.UpdateSubscription(index)
+func BestNode() (*subscriptions.Node, error) {
+    return vpnCore.BestNode()
 }
 
 func GetSubscriptions() []subscriptions.Subscription {
