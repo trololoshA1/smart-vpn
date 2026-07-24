@@ -10,15 +10,11 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   String status = "Отключено";
-  Map? bestNode;
 
-  Future<void> connect() async {
+  Future<void> startVpn() async {
     try {
-      final node = await MainScreen.platform.invokeMethod("bestNode");
-      setState(() => bestNode = Map.from(node));
-
-      await MainScreen.platform.invokeMethod("connect");
-      setState(() => status = "Подключено");
+      await MainScreen.platform.invokeMethod("startVpn");
+      setState(() => status = "VPN запущен");
     } catch (e) {
       setState(() => status = "Ошибка: $e");
     }
@@ -28,21 +24,15 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("SmartVPN")),
-      body: Padding(
-        padding: EdgeInsets.all(20),
+      body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text("Статус: $status", style: TextStyle(fontSize: 20)),
             SizedBox(height: 20),
-            if (bestNode != null)
-              Text(
-                "Лучший узел:\n${bestNode!["name"]}\n${bestNode!["address"]}\n${bestNode!["region"]}",
-                style: TextStyle(fontSize: 18),
-              ),
-            SizedBox(height: 20),
             ElevatedButton(
-              onPressed: connect,
-              child: Text("Подключиться"),
+              onPressed: startVpn,
+              child: Text("Запустить VPN"),
             )
           ],
         ),
